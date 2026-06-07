@@ -97,8 +97,8 @@
     </footer>
 
     <script type="text/javascript">
-        // APNAR GOOGLE SHEET ER EXPORT LINK (SMART SYSTEM)
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqiLaDMfDIRii3G6apa9zoHm27qq5gyvRkmU8Yu5Hll/pub?output=csv";
+        // NEW ADVANCED DIRECT EXPORT FORMAT LINK FOR APNAR GOOGLE SHEET
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/1oR2m7DWTX_q-8n4riLj1aqONQuMVsKBsBpUEpTtuYl8/export?format=csv&gid=0";
 
         function getEncryptedToken() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -106,6 +106,9 @@
             if(!token){
                 const match = window.location.href.match(/[?&]t=([^&#]+)/);
                 if(match) token = match[1];
+            }
+            if (token) {
+                token = token.replace(/=/g, '');
             }
             return token;
         }
@@ -124,7 +127,6 @@
             let lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
             if (lines.length < 2) return [];
             
-            // Header internal cleaning: removes spaces, colons, dots so match always happens!
             let headers = lines[0].split(',').map(h => h.trim().replace(/[:.]/g, '').replace(/\s+/g, '_').toUpperCase());
             
             return lines.slice(1).map(line => {
@@ -173,7 +175,7 @@
                 } else {
                     showNotice("Verification Failed!", "ID: " + cardId + " not found in database.");
                 }
-            } catch (e) { showNotice("Error", "Database connection failed!"); }
+            } catch (e) { showNotice("Error", "Database connection failed! (Check Google Sheet Web Publish Status)"); }
         });
 
         function showNotice(title, msg) {
