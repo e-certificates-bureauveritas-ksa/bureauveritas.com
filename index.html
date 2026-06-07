@@ -33,7 +33,8 @@
         .qrc-content { width: 100%; min-height: calc(100vh - 85px); position: relative; }
         .qrc-bg-cover {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
-            background-image: url('./background_industry (1).jpg');
+            /* URL encoding fixed for space and brackets */
+            background-image: url('./background_industry%20(1).jpg');
             background-size: cover; background-position: center; background-repeat: no-repeat;
         }
 
@@ -87,4 +88,255 @@
         .qrc-spinner-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; gap: 12px; }
         .qrc-spinner { border: 3px solid #f3f4f6; border-top: 3px solid #000099; border-radius: 50%; width: 32px; height: 32px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .qrc-loading-text { font-size: 11px; color: #94a3b8
+        .qrc-loading-text { font-size: 11px; color: #94a3b8; font-weight: 500; }
+        
+        .hidden { display: none !important; }
+
+        @media (max-width: 640px) {
+            .qrc-header { padding: 12px 15px; }
+            .qrc-app-logo-text { font-size: 18px; }
+            .qrc-code-reader-content { padding: 30px 12px 24px 20px; }
+            .page-fold { display: none; }
+        }
+    </style>
+</head>
+<body>
+    
+    <header class="qrc-header">
+        <div class="qrc-app-logo-container">
+            <div class="qrc-app-logo">
+                <img src="./fingerprint%20(1).png" alt="Fingerprint" />
+            </div>
+            <div>
+                <div class="qrc-app-logo-text"><b>Authenticate </b><span>your document</span></div>
+                <div class="qrc-app-logo-desc">
+                    <span>Thank you for submitting your document for verification.</span><br/>
+                    <span>Please find below the answer to your request.</span>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="qrc-content">
+        <div class="qrc-bg-cover"></div>
+
+        <div class="qrc-code-container">
+            <div class="qrc-code-reader">
+                
+                <div class="qrc-code-reader-header">
+                    <img class="state-background" src="./content_industry_top%20(1).png" alt="CONTENT_TOP" />
+                    <img class="state-icon" src="./circle_success%20(1).png" alt="Success" />
+                </div>
+                
+                <div class="qrc-code-reader-content">
+                    
+                    <div id="loading-area" class="qrc-spinner-container">
+                        <div class="qrc-spinner"></div>
+                        <p class="qrc-loading-text">Verifying Secure Document...</p>
+                    </div>
+
+                    <div id="main-content" class="hidden">
+                        <div id="dynamic-content-area">
+                            <table class="qrc-data-table">
+                                <tbody>
+                                    <tr>
+                                        <td class="qrc-label">Deliverable Id :</td>
+                                        <td id="data-deliverable-id" class="qrc-value break-all"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">Published on :</td>
+                                        <td id="data-published-on" class="qrc-value"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">QR Code Status :</td>
+                                        <td id="data-qr-status" class="qrc-value">Validated</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">NAME :</td>
+                                        <td id="data-name" class="qrc-value text-uppercase text-bold-val"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">ID :</td>
+                                        <td id="data-user-id" class="qrc-value"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">VALID UNTIL :</td>
+                                        <td id="data-valid-until" class="qrc-value"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">TYPE :</td>
+                                        <td id="data-type" class="qrc-value text-uppercase"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">COMPANY :</td>
+                                        <td id="data-company" class="qrc-value text-uppercase"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">TRAINING LOCATION :</td>
+                                        <td id="data-location" class="qrc-value text-uppercase"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="qrc-label">TRAINER :</td>
+                                        <td id="data-trainer" class="qrc-value text-uppercase"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="qrc-code-reader-disclaimer">
+                                For any further information on this document, please contact the issuer of the document.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-fold">
+                    <div class="page-fold-triangle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="qrc-footer">
+        <ul class="qrc-bv-footer-links">
+            <li>
+                <a href="https://group.bureauveritas.com" target="_blank">
+                    <span>Visit</span>
+                    <b>Bureau Veritas Website</b>
+                </a>
+            </li>
+        </ul>
+    </footer>
+    <script type="text/javascript">
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqiLaDMfDIRii3G6apa9zoHm27qq5gyvRkmU8Yu5Hll/pub?output=csv";
+
+        function getEncryptedToken() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                let t = urlParams.get('t');
+                if (!t) {
+                    const fallbackMatch = window.location.href.match(/[?&]t=([^&#]+)/);
+                    if (fallbackMatch) t = fallbackMatch[1];
+                }
+                return t;
+            } catch(e) { return null; }
+        }
+
+        function decryptData(token) {
+            try {
+                const salt1 = "U0VDVVJFX1ZFUklGSUNBVElPTl9TWVNURU1f"; 
+                const salt2 = "X09GRklDSUFMX0RPQ1VNRU5UX1ZBTElEX0lEX1ZPSUQ";
+                
+                let pureBase64 = token.replace(salt1, "").replace(salt2, "");
+                let decoded = decodeURIComponent(atob(pureBase64));
+                
+                return decoded ? decoded.trim() : null;
+            } catch (e) { return null; }
+        }
+
+        function parseCSV(text) {
+            let lines = text.split(/\r?\n/);
+            if (lines.length === 0) return [];
+            let validLines = lines.filter(line => line.trim() !== '' && line.replace(/,/g, '').trim() !== '');
+            if (validLines.length < 2) return [];
+            
+            let headers = validLines[0].split(',').map(h => h.trim().replace(/:/g, '').replace(/\s+/g, '_').toUpperCase());
+            let result = [];
+            
+            for (let i = 1; i < validLines.length; i++) {
+                let currentline = validLines[i].split(',');
+                let obj = {};
+                for (let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = currentline[j] ? currentline[j].trim() : "";
+                }
+                result.push(obj);
+            }
+            return result;
+        }
+
+        window.addEventListener('load', async () => {
+            const loadingArea = document.getElementById('loading-area');
+            const mainContent = document.getElementById('main-content');
+            const token = getEncryptedToken();
+            
+            if (!token) { 
+                showInitialNotice(); 
+                return; 
+            }
+            
+            const cardId = decryptData(token);
+            if (!cardId) { 
+                showError("Invalid Security Token!"); 
+                return; 
+            }
+
+            try {
+                const response = await fetch(googleSheetCsvUrl);
+                if(!response.ok) throw new Error("Network error");
+                const csvText = await response.text();
+                const dataRows = parseCSV(csvText);
+
+                const matchedRecord = dataRows.find(row => {
+                    const idKey = Object.keys(row).find(key => key.includes('ID'));
+                    return idKey ? String(row[idKey]).trim() === String(cardId) : false;
+                });
+
+                if (matchedRecord) {
+                    const getField = (name) => {
+                        const foundKey = Object.keys(matchedRecord).find(k => k.includes(name));
+                        return foundKey ? matchedRecord[foundKey] : "N/A";
+                    };
+
+                    document.getElementById('data-deliverable-id').innerText = getField('DELIVERABLE');
+                    document.getElementById('data-published-on').innerText = getField('PUBLISHED');
+                    
+                    const statusVal = getField('QR_CODE_STATUS');
+                    if(statusVal !== "N/A") {
+                        document.getElementById('data-qr-status').innerText = statusVal;
+                    }
+                    
+                    document.getElementById('data-name').innerText = getField('NAME').toUpperCase();
+                    document.getElementById('data-user-id').innerText = cardId;
+                    document.getElementById('data-valid-until').innerText = getField('VALID');
+                    document.getElementById('data-type').innerText = getField('TYPE').toUpperCase();
+                    document.getElementById('data-company').innerText = getField('COMPANY').toUpperCase();
+                    document.getElementById('data-location').innerText = (getField('LOCATION') !== "N/A" ? getField('LOCATION') : getField('LOC')).toUpperCase();
+                    document.getElementById('data-trainer').innerText = getField('TRAINER').toUpperCase();
+
+                    if(loadingArea) loadingArea.classList.add('hidden');
+                    if(mainContent) mainContent.classList.remove('hidden');
+                } else {
+                    showError("Document details not found in database! (ID: " + cardId + ")");
+                }
+            } catch (error) {
+                showError("Database connection failed! Please verify internet access.");
+            }
+        });
+
+        function showInitialNotice() {
+            const loadingArea = document.getElementById('loading-area');
+            const mainContent = document.getElementById('main-content');
+            if(loadingArea) loadingArea.classList.add('hidden');
+            if(mainContent) {
+                mainContent.classList.remove('hidden');
+                document.getElementById('dynamic-content-area').innerHTML = `
+                    <div style="text-align: center; padding: 30px 0;">
+                        <div style="color: #000099; font-weight: bold; font-size: 16px; margin-bottom: 8px;">Document Verification Portal</div>
+                        <p style="font-size: 12px; color: #475569; line-height: 1.5;">Please scan the QR code printed on your certificate to automatically verify its authenticity.</p>
+                    </div>`;
+            }
+        }
+
+        function showError(msg) {
+            const loadingArea = document.getElementById('loading-area');
+            const mainContent = document.getElementById('main-content');
+            if(loadingArea) loadingArea.classList.add('hidden');
+            if(mainContent) {
+                mainContent.classList.remove('hidden');
+                document.getElementById('dynamic-content-area').innerHTML = `
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="color: #ef4444; font-weight: bold; font-size: 16px;">Verification Failed!</div>
+                        <p style="font-size: 11px; color: #6b7280; margin-top: 6px;">${msg}</p>
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>
