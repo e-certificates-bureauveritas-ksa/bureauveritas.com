@@ -96,8 +96,8 @@
     </footer>
 
     <script type="text/javascript">
-        // Google Sheet URL
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRqiLaDMfDIRii3G6apa9zoHm27qq5gyvRkmU8Yu5Hll/pub?output=csv";
+        // APNAR ASOL GOOGLE SHEET CSV LINK
+        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTaqv_E7E8T9E3bXqB_T0r6X_46_fGwhq1N-V6l-P8WpEtt-xJ3eKexz_n_l77kSj7X-pE/pub?output=csv";
 
         function getEncryptedToken() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -106,7 +106,6 @@
                 const match = window.location.href.match(/[?&]t=([^&#]+)/);
                 if(match) token = match[1];
             }
-            // Fix double equals mismatch if it happens
             if(token && token.startsWith('=')) { token = token.substring(1); }
             return token;
         }
