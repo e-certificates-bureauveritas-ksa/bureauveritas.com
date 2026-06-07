@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Authenticate your Document</title>
-    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; background-color: #f3f4f6; user-select: none; }
@@ -97,8 +96,9 @@
     </footer>
 
     <script type="text/javascript">
-        // NEW ADVANCED DIRECT EXPORT FORMAT LINK FOR APNAR GOOGLE SHEET
-        const googleSheetCsvUrl = "https://docs.google.com/spreadsheets/d/1oR2m7DWTX_q-8n4riLj1aqONQuMVsKBsBpUEpTtuYl8/export?format=csv&gid=0";
+        // EXTREMELY STABLE SPECIFIC EXPORT SYSTEM
+        const sheetId = "1oR2m7DWTX_q-8n4riLj1aqONQuMVsKBsBpUEpTtuYl8";
+        const googleSheetCsvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
 
         function getEncryptedToken() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -107,9 +107,7 @@
                 const match = window.location.href.match(/[?&]t=([^&#]+)/);
                 if(match) token = match[1];
             }
-            if (token) {
-                token = token.replace(/=/g, '');
-            }
+            if (token) { token = token.replace(/=/g, ''); }
             return token;
         }
 
@@ -127,12 +125,14 @@
             let lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
             if (lines.length < 2) return [];
             
-            let headers = lines[0].split(',').map(h => h.trim().replace(/[:.]/g, '').replace(/\s+/g, '_').toUpperCase());
+            // Clean quotes and parse standard CSV rows correctly
+            let cleanRow = (row) => row.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+            let headers = cleanRow(lines[0]).map(h => h.replace(/[:.]/g, '').replace(/\s+/g, '_').toUpperCase());
             
             return lines.slice(1).map(line => {
-                let cells = line.split(',');
+                let cells = cleanRow(line);
                 let obj = {};
-                headers.forEach((h, j) => { obj[h] = cells[j] ? cells[j].trim() : ""; });
+                headers.forEach((h, j) => { obj[h] = cells[j] || ""; });
                 return obj;
             });
         }
@@ -148,8 +148,9 @@
                 const response = await fetch(googleSheetCsvUrl);
                 const dataRows = parseCSV(await response.text());
                 
+                // Smart scan across headers for ID column
                 const record = dataRows.find(row => {
-                    const idKey = Object.keys(row).find(k => k === 'ID');
+                    const idKey = Object.keys(row).find(k => k.includes('ID'));
                     return idKey && String(row[idKey]).trim() === String(cardId);
                 });
 
@@ -175,7 +176,7 @@
                 } else {
                     showNotice("Verification Failed!", "ID: " + cardId + " not found in database.");
                 }
-            } catch (e) { showNotice("Error", "Database connection failed! (Check Google Sheet Web Publish Status)"); }
+            } catch (e) { showNotice("Error", "Database connection failed! (Verify Web Publication Status)"); }
         });
 
         function showNotice(title, msg) {
