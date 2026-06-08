@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সুরক্ষিত ফাইল ভিউয়ার</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 90%;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        img, iframe {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: none;
+        }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>ফাইলটি লোড হচ্ছে...</h2>
+    <div id="loader" class="loader"></div>
+    <div id="output"></div>
+</div>
+
+<script>
+    // একটি ফিক্সড সিক্রেট কি (Secret Key) ডিক্রিপশনের জন্য
+    const secretKey = "MyGitHubSecureKey123";
+
+    // URL থেকে এনক্রিপ্ট করা ডাটা নেওয়া
+    const urlParams = new URLSearchParams(window.location.search);
+    const encryptedData = urlParams.get('file');
+
+    const outputDiv = document.getElementById('output');
+    const loader = document.getElementById('loader');
+    const header = document.querySelector('h2');
+
+    if (encryptedData) {
+        try {
+            // URL Safe Base64 থেকে স্ট্যান্ডার্ড Base64 এ রূপান্তর
+            let formattedData = encryptedData.replace(/-/g, '+').replace(/_/g, '/');
+            
+            // ডাটা ডಿಕ্রিপ্ট করা
+            const bytes = CryptoJS.AES.decrypt(formattedData, secretKey);
+            const decryptedLink = bytes.toString(CryptoJS.enc.Utf8);
+
+            if (decryptedLink && decryptedLink.startsWith('http')) {
+                loader.style.display = 'none';
+                header.innerText = "আপনার ফাইলটি নিচে দেখানো হলো";
+
+                // ফাইলের এক্সটেনশন চেক করা
+                if (decryptedLink.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+                    outputDiv.innerHTML = `<img src="${decryptedLink}" alt="Decrypted File">`;
+                } else if (decryptedLink.match(/\.(pdf)$/i)) {
+                    outputDiv.innerHTML = `<iframe src="${decryptedLink}" width="100%" height="500px"></iframe>`;
+                } else {
+                    outputDiv.innerHTML = `<p>ফাইলটি সরাসরি দেখার উপযোগী নয়। <a href="${decryptedLink}" target="_blank">এখানে ক্লিক করে ডাউনলোড করুন</a></p>`;
+                }
+            } else {
+                throw new Error("Invalid Link");
+            }
+        } catch (e) {
+            loader.style.display = 'none';
+            header.innerText = "ব্যর্থ হয়েছে!";
+            outputDiv.innerHTML = `<p class="error">ভুল বা ক্ষতিগ্রস্ত লিঙ্ক! ফাইলটি ডিক্রিপ্ট করা সম্ভব হয়নি।</p>`;
+        }
+    } else {
+        loader.style.display = 'none';
+        header.innerText = "স্বাগতম";
+        outputDiv.innerHTML = `<p>কোনো ফাইল লিংক পাওয়া যায়নি। দয়া করে সঠিক QR কোড স্ক্যান করুন।</p>`;
+    }
+</script>
+
+</body>
+</html>
