@@ -2,24 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- মোবাইলে ১০০% জুম ফিক্সড রাখা এবং ইউজার জুম বন্ধ করার জন্য ভিউপোর্ট ট্যাগ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Redirecting...</title>
+    <title>Document Viewer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* পুরো স্ক্রিন ১০০% ফিট করা এবং স্ক্রলবার ও জুমের ঝামেলা বন্ধ করা */
+        /* পুরো স্ক্রিন ১০০% ফিট করা এবং স্ক্রলবার ও জুম সম্পূর্ণ বন্ধ করা */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* স্ক্রলবার বন্ধ রাখবে */
+            overflow: hidden; /* কোনো স্ক্রলবার আসবে না */
             background-color: #f7fafc;
             font-family: sans-serif;
-            
-            /* মোবাইল ব্রাউজারের ডিফল্ট বাউন্স বা অতিরিক্ত স্ক্রলিং ইফেক্ট বন্ধ করার জন্য */
-            touch-action: none; 
-            -webkit-text-size-adjust: 100%; /* iOS/Android এ টেক্সট সাইজ ফিক্সড রাখবে */
+            touch-action: none; /* জুম বা স্ক্রল লক করার জন্য */
         }
         
         body {
@@ -28,15 +24,12 @@
             align-items: center;
         }
 
-        /* আইফ্রেমটি যেন স্ক্রিনের ভেতরে ১০০% ফিট হয়ে থাকে */
-        #filePreview {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* ইমেজটিকে স্ক্রিনের ভেতর পারফেক্টলি ফিট করার আসল ট্রিক */
+        #imagePreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* ছবি বিকৃত না করে স্ক্রিনের ভেতর ১০০% ফিট রাখবে */
+            display: none; /* প্রথমে হাইড থাকবে */
         }
 
         #status {
@@ -48,7 +41,8 @@
 <body>
 
     <div id="status">Loading...</div>
-    <iframe id="filePreview" src=""></iframe>
+    <!-- আইফ্রেম বাদ দিয়ে সরাসরি ইমেজ ট্যাগ ব্যবহার করা হলো -->
+    <img id="imagePreview" src="" alt="Document Preview">
 
 <script>
     const secretKey = "MyGitHubSecureKey123";
@@ -56,7 +50,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const encryptedData = urlParams.get('file');
     const statusDiv = document.getElementById('status');
-    const previewFrame = document.getElementById('filePreview');
+    const imgPreview = document.getElementById('imagePreview'); // ইমেজ ট্যাগ সিলেক্ট করা হলো
 
     if (encryptedData) {
         try {
@@ -66,9 +60,10 @@
             const decryptedLink = bytes.toString(CryptoJS.enc.Utf8);
 
             if (decryptedLink && decryptedLink.startsWith('http')) {
-                statusDiv.style.display = 'none';
-                previewFrame.src = decryptedLink;
-                previewFrame.style.display = 'block';
+                statusDiv.style.display = 'none'; // Loading লেখা মুছে যাবে
+                
+                imgPreview.src = decryptedLink; // ডিক্রিপ্ট হওয়া লিঙ্কটি ছবিতে সেট হবে
+                imgPreview.style.display = 'block'; // ছবি শো করবে
             } else {
                 statusDiv.innerText = "Error: Invalid file link.";
             }
