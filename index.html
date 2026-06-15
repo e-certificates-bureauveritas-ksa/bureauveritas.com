@@ -6,35 +6,34 @@
     <title>Document Viewer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* পুরো স্ক্রিনের মার্জিন-প্যাডিং জিরো করা */
+        /* স্ক্রিনের সব মার্জিন এবং ডিফল্ট প্যাডিং জিরো করা */
         html, body {
-            margin: 0;
-            padding: 0;
+            margin: 0 !important;
+            padding: 0 !important;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* স্ক্রলবার বন্ধ রাখবে */
+            overflow: hidden; /* স্ক্রলবার পুরোপুরি বন্ধ */
             background-color: #f7fafc;
             font-family: sans-serif;
-            touch-action: none; /* জুম লক করার জন্য */
+            touch-action: none;
         }
         
         body {
-            display: block; /* ফ্লেক্স বক্স সরিয়ে ব্লক করা হলো যাতে ফাইল ওপরে চলে যায় */
+            display: block;
         }
 
-        /* ইমেজটিকে একদম ওপরে জিরো গ্যাপে ফিট করার স্টাইল */
+        /* ইমেজটিকে একদম ওপরে জিরো গ্যাপে ফিক্সড করার ম্যাজিক সিএসএস */
         #imagePreview {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            max-height: 100%;
-            object-fit: contain;
-            display: none; /* প্রথমে হাইড থাকবে */
-            margin-top: 0; /* ওপরে কোনো ফাঁকা জায়গা রাখবে না */
-            padding-top: 0;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover; /* ইমেজের ভেতরের বাড়তি সাদা অংশ কেটে স্ক্রিনে ফিট করবে */
+            object-position: top center; /* ইমেজটিকে একদম ওপর থেকে শুরু করতে বাধ্য করবে */
+            display: none;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        /* লোডিং স্টাইলটিকে স্ক্রিনের মাঝখানে রাখার জন্য আলাদা পজিশন */
+        /* লোডিং টেক্সট পজিশন */
         #status {
             position: absolute;
             top: 50%;
