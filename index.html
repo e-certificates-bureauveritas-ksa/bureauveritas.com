@@ -5,20 +5,35 @@
     <title>Redirecting...</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        body {
+        /* আপনার আগের স্টাইল ঠিক রেখে স্ক্রলবার বন্ধ এবং ফুল-স্ক্রিন করার কোড */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* এর ফলে কোনো স্ক্রলবার আসবে না */
+            background-color: #f7fafc;
             font-family: sans-serif;
+        }
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f7fafc;
+        }
+        /* ফাইলের প্রিভিউ ফ্রেমের স্টাইল */
+        #filePreview {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none; /* প্রথমে লুকিয়ে থাকবে */
         }
     </style>
 </head>
 <body>
 
     <div id="status">Loading...</div>
+    <!-- ফাইল ওপর থেকে পুরো স্ক্রিনে দেখানোর জন্য ফ্রেম -->
+    <iframe id="filePreview" src=""></iframe>
 
 <script>
     const secretKey = "MyGitHubSecureKey123";
@@ -27,6 +42,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const encryptedData = urlParams.get('file');
     const statusDiv = document.getElementById('status');
+    const previewFrame = document.getElementById('filePreview'); // ফ্রেমটি সিলেক্ট করা হলো
 
     if (encryptedData) {
         try {
@@ -38,8 +54,10 @@
             const decryptedLink = bytes.toString(CryptoJS.enc.Utf8);
 
             if (decryptedLink && decryptedLink.startsWith('http')) {
-                // কোনো লেখা না দেখিয়ে সরাসরি ফাইল লিঙ্কে পাঠিয়ে দেওয়া
-                window.location.href = decryptedLink;
+                // আগের সরাসরি রিডাইরেক্টের বদলে এখন ফ্রেমের ভেতরে ফাইলটি ওপেন হবে
+                statusDiv.style.display = 'none'; // Loading লেখাটি মুছে যাবে
+                previewFrame.src = decryptedLink; // ফাইলে লিঙ্ক সেট হবে
+                previewFrame.style.display = 'block'; // ফাইলটি স্ক্রিনে শো করবে
             } else {
                 statusDiv.innerText = "Error: Invalid file link.";
             }
