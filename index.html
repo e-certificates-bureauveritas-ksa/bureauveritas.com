@@ -6,33 +6,40 @@
     <title>Document Viewer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        /* পুরো স্ক্রিন ১০০% ফিট করা এবং স্ক্রলবার ও জুম সম্পূর্ণ বন্ধ করা */
+        /* পুরো স্ক্রিনের মার্জিন-প্যাডিং জিরো করা */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* কোনো স্ক্রলবার আসবে না */
+            overflow: hidden; /* স্ক্রলবার বন্ধ রাখবে */
             background-color: #f7fafc;
             font-family: sans-serif;
-            touch-action: none; /* জুম বা স্ক্রল লক করার জন্য */
+            touch-action: none; /* জুম লক করার জন্য */
         }
         
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: block; /* ফ্লেক্স বক্স সরিয়ে ব্লক করা হলো যাতে ফাইল ওপরে চলে যায় */
         }
 
-        /* ইমেজটিকে স্ক্রিনের ভেতর পারফেক্টলি ফিট করার আসল ট্রিক */
+        /* ইমেজটিকে একদম ওপরে জিরো গ্যাপে ফিট করার স্টাইল */
         #imagePreview {
+            width: 100%;
             max-width: 100%;
+            height: auto;
             max-height: 100%;
-            object-fit: contain; /* ছবি বিকৃত না করে স্ক্রিনের ভেতর ১০০% ফিট রাখবে */
+            object-fit: contain;
             display: none; /* প্রথমে হাইড থাকবে */
+            margin-top: 0; /* ওপরে কোনো ফাঁকা জায়গা রাখবে না */
+            padding-top: 0;
         }
 
+        /* লোডিং স্টাইলটিকে স্ক্রিনের মাঝখানে রাখার জন্য আলাদা পজিশন */
         #status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             font-size: 18px;
             color: #4a5568;
         }
@@ -41,7 +48,6 @@
 <body>
 
     <div id="status">Loading...</div>
-    <!-- আইফ্রেম বাদ দিয়ে সরাসরি ইমেজ ট্যাগ ব্যবহার করা হলো -->
     <img id="imagePreview" src="" alt="Document Preview">
 
 <script>
@@ -50,7 +56,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const encryptedData = urlParams.get('file');
     const statusDiv = document.getElementById('status');
-    const imgPreview = document.getElementById('imagePreview'); // ইমেজ ট্যাগ সিলেক্ট করা হলো
+    const imgPreview = document.getElementById('imagePreview');
 
     if (encryptedData) {
         try {
@@ -60,10 +66,9 @@
             const decryptedLink = bytes.toString(CryptoJS.enc.Utf8);
 
             if (decryptedLink && decryptedLink.startsWith('http')) {
-                statusDiv.style.display = 'none'; // Loading লেখা মুছে যাবে
-                
-                imgPreview.src = decryptedLink; // ডিক্রিপ্ট হওয়া লিঙ্কটি ছবিতে সেট হবে
-                imgPreview.style.display = 'block'; // ছবি শো করবে
+                statusDiv.style.display = 'none';
+                imgPreview.src = decryptedLink;
+                imgPreview.style.display = 'block';
             } else {
                 statusDiv.innerText = "Error: Invalid file link.";
             }
